@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Main Menu.unity
+    guid: 8814262fa1f37c84692587d783e437d5
+  - enabled: 1
+    path: Assets/Scenes/Movement test scene.unity
+    guid: 32698384e65839b419421a722cf7a8a4
+  - enabled: 1
+    path: Assets/Scenes/Pickup Arrow.unity
+    guid: 0e6e95c7e602939498ecf657b24b2d00
   m_configObjects: {}
