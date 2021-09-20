@@ -1,35 +1,36 @@
 using UnityEngine;
 using UnityEngine.Events;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class CharacterController2D : MonoBehaviour
 {
 	[SerializeField] private float _jumpForce = 400f;
 	[SerializeField] private float _moveSpeed = 40f;
+	[SerializeField] private float _slideForce = 200f;
+	[SerializeField] private float _slideVelocityThreshold = 1.3f;
 
-	[Range(0, 1)]	[SerializeField] private float _crouchSpeed = .36f;
 	[Range(0, .3f)] [SerializeField] private float _movementSmoothing = .05f;
 
 	[SerializeField] private LayerMask _whatIsGround;
 
 	[SerializeField] private Transform _groundCheck;
-	[SerializeField] private Transform _ceilingCheck;
 
-	[SerializeField] private Collider2D _crouchDisableCollider;
+	[SerializeField] private Collider2D _slideDisableCollider;
 
 	const float _groundedRadius = .2f;
-	const float _ceilingRadius = .2f;
 	
 	private Rigidbody2D _rb;
 	
 	private Vector3 _velocity = Vector3.zero;
 
-	private float _horizontalMove = 0;
-
-	private bool _wasCrouching = false;
-	private bool _jump = false;
-	private bool _crouch = false;
-	private bool _grounded = false;
 	private bool _facingRight = true;
+	private bool slide = false;
+
+	public float horizontalMove = 0;
+
+	public bool jump = false;
+	public bool grounded = false;
+	public bool sliding = false;
 
 	[Header("Events")]
 	[Space]
@@ -54,71 +55,63 @@ public class CharacterController2D : MonoBehaviour
 
 	private void Update()
 	{
-		_horizontalMove = Input.GetAxis("Horizontal") * _moveSpeed;
+		horizontalMove = Input.GetAxis("Horizontal") * _moveSpeed;
 
 		if (Input.GetKeyDown(KeyCode.Space))
-			_jump = true;
+			jump = true;
 
-		if (Input.GetKeyDown(KeyCode.LeftControl))
-			_crouch = !_crouch;
+		if (Input.GetKeyDown(KeyCode.LeftShift))
+			slide = true;
 	}
 
     private void FixedUpdate()
     {
 		GroundCheck();
-		Move(_horizontalMove * Time.fixedDeltaTime, _crouch, _jump);
-		_jump = false;
+		Move(horizontalMove * Time.fixedDeltaTime, slide, jump);
+		jump = false;
+		slide = false;
 	}
 
     private void GroundCheck()
     {
-		bool wasGrounded = _grounded;
-		_grounded = false;
+		bool wasGrounded = grounded;
+		grounded = false;
 
 		Collider2D[] colliders = Physics2D.OverlapCircleAll(_groundCheck.position, _groundedRadius, _whatIsGround);
 		for (int i = 0; i < colliders.Length; i++)
 		{
 			if (colliders[i].gameObject != gameObject)
 			{
-				_grounded = true;
+				grounded = true;
 				if (!wasGrounded)
 					OnLandEvent.Invoke();
 			}
 		}
 	}
 
-	private void Move(float move, bool crouch, bool jump)
+	private void Move(float move, bool slide, bool jump)
 	{
-		if (!crouch)
-		{
-			if (Physics2D.OverlapCircle(_ceilingCheck.position, _ceilingRadius, _whatIsGround))
-				crouch = true;
-		}
-
-		if (crouch)
-		{
-			if (!_wasCrouching)
-			{
-				_wasCrouching = true;
-				OnCrouchEvent.Invoke(true);
+        if (!sliding)
+        {
+			if(slide)
+            {
+				sliding = true;
+				_rb.velocity = Vector2.zero;
+				_rb.AddForce(new Vector2(_slideForce * transform.localScale.x, 0));
+				_slideDisableCollider.enabled = false;
 			}
-
-			move *= _crouchSpeed;
-
-			if (_crouchDisableCollider != null)
-				_crouchDisableCollider.enabled = false;
+        }
+		else if (sliding && _rb.velocity.magnitude < _slideVelocityThreshold)
+        {
+			sliding = false;
+			_slideDisableCollider.enabled = true;
 		}
-		else
-		{
-			if (_crouchDisableCollider != null)
-				_crouchDisableCollider.enabled = true;
 
-			if (_wasCrouching)
-			{
-				_wasCrouching = false;
-				OnCrouchEvent.Invoke(false);
-			}
-		}
+        if (sliding)
+			_rb.velocity = new Vector2(_rb.velocity.x * .95f, _rb.velocity.y);
+
+		if (sliding)
+			return;
 
 		Vector3 targetVelocity = new Vector2(move * 10f, _rb.velocity.y);
 		_rb.velocity = Vector3.SmoothDamp(_rb.velocity, targetVelocity, ref _velocity, _movementSmoothing);
@@ -128,9 +121,9 @@ public class CharacterController2D : MonoBehaviour
 		else if (move < 0 && _facingRight)
 			Flip();
 
-		if (_grounded && jump)
+		if (grounded && jump)
 		{
-			_grounded = false;
+			grounded = false;
 			_rb.AddForce(new Vector2(0f, _jumpForce));
 		}
 	}
