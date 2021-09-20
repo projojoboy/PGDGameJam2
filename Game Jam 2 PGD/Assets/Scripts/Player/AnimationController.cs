@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator), typeof(CharacterController2D), typeof(Rigidbody2D))]
+[RequireComponent(typeof(AttackController))]
 public class AnimationController : MonoBehaviour
 {
     private Animator _anim;
     private CharacterController2D _cc;
     private Rigidbody2D _rb;
+    private AttackController _ac;
 
     [SerializeField] private float _velocityThreshold = .8f;
 
@@ -16,12 +18,15 @@ public class AnimationController : MonoBehaviour
         _anim = GetComponent<Animator>();
         _cc = GetComponent<CharacterController2D>();
         _rb = GetComponent<Rigidbody2D>();
+        _ac = GetComponent<AttackController>();
     }
 
     private void Update()
     {
         bool grounded = _cc.grounded;
         bool sliding = _cc.sliding;
+        bool attack = _ac.attack;
+        bool atkAnimDone = _ac.animationEnded;
         bool moving = (_rb.velocity.x > _velocityThreshold || _rb.velocity.x < -_velocityThreshold);
         bool jumping = (_rb.velocity.y > 0 && !grounded);
         bool falling = (_rb.velocity.y <= 0 && !grounded);
@@ -50,5 +55,15 @@ public class AnimationController : MonoBehaviour
             _anim.SetBool("Sliding", true);
         else if (!sliding)
             _anim.SetBool("Sliding", false);
+
+        if (attack)
+            _anim.SetBool("Attack", true);
+        else if (!sliding)
+            _anim.SetBool("Attack", false);
+
+        if (atkAnimDone)
+            _anim.SetBool("Finished Attack Animation", true);
+        else if (!atkAnimDone)
+            _anim.SetBool("Finished Attack Animation", false);
     }
 }
