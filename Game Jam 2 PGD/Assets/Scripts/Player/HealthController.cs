@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HealthController : MonoBehaviour
 {
@@ -39,7 +40,8 @@ public class HealthController : MonoBehaviour
 
     private void Dead()
     {
-        Debug.Log("F for sad me...");
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
     }
 
     public void LoseHP(int amount)
