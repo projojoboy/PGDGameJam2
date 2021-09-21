@@ -67,4 +67,10 @@ public class HealthController : MonoBehaviour
             }
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+            LoseHP(3);
+    }
 }

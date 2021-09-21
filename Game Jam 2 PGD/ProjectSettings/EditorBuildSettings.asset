@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Pickup Arrow.unity
     guid: 0e6e95c7e602939498ecf657b24b2d00
+  - enabled: 1
+    path: Assets/Scenes/Level1.unity
+    guid: f32174af6bb003f4fa8a1f434a589b8d
   m_configObjects: {}
