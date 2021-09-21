@@ -18,12 +18,12 @@ public class BossMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (transform.position.x < -18)
+        if (transform.position.x < 120)
         {
             left = false;
             Debug.Log("Right");
         }
-        else if (transform.position.x > 3) 
+        else if (transform.position.x > 160) 
         {
             left = true;
             Debug.Log("Left");

@@ -7,10 +7,14 @@ public class PickUpArrow : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         PickUpManager manager = collision.GetComponent<PickUpManager>();
+        
         if(manager)
         {
-            manager.PickUpItem();
-            Destroy(gameObject);
+            if (manager.arrowCount < manager.maxArrows)
+            {
+                manager.PickUpItem();
+                Destroy(gameObject);
+            }
         }     
     }
 }

@@ -6,9 +6,12 @@ public class PickUpManager : MonoBehaviour
 {
     public int arrowCount;
 
+    public int maxArrows = 5;
+
     public void PickUpItem()
     {
-        arrowCount++;
+        if(arrowCount < maxArrows)
+            arrowCount++;
     }
 
 }

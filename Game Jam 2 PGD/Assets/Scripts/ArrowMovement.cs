@@ -5,6 +5,7 @@ using UnityEngine;
 public class ArrowMovement : MonoBehaviour
 {
     public bool _isFlying = false;
+    public bool _isSticky = true;
 
     [SerializeField] private int _speed;
 
@@ -28,6 +29,33 @@ public class ArrowMovement : MonoBehaviour
         if (lifeTime > 10) 
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Boss")
+        {
+            Debug.Log("dsad");
+            collision.gameObject.GetComponent<BossHealthManager>().GetHit();
+            Destroy(this.gameObject);
+        }
+
+        if (collision.gameObject.tag == "Ground")
+        {
+            if (_isSticky)
+            {
+                _isFlying = false;
+                GetComponent<Collider2D>().isTrigger = true;
+            }
+            else
+                Destroy(this.gameObject);
+        }
+
+        if (collision.gameObject.tag == "Player")
+        {
+            collision.gameObject.GetComponent<HealthController>().LoseHP(1);
+            Destroy(this.gameObject);
         }
     }
 }
